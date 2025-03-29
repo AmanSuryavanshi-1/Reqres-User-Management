@@ -12,7 +12,7 @@ const Users: React.FC = () => {
       
       <motion.main
         {...pageTransition}
-        className="flex-1 container py-8"
+        className="flex-1 container py-4"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}

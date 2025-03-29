@@ -31,7 +31,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-lg border-b">
-      <div className="container flex h-16 items-center justify-between py-4">
+      <div className="container flex h-14 items-center justify-between py-2">
         <motion.div 
           initial="hidden"
           animate="visible"
