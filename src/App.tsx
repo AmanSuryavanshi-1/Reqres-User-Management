@@ -1,8 +1,7 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AnimatePresence } from "framer-motion";
@@ -10,11 +9,10 @@ import Login from "./pages/Login";
 import Users from "./pages/Users";
 import EditUser from "./pages/EditUser";
 import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
+import { store } from "./store";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <Provider store={store}>
     <TooltipProvider>
       <Toaster />
       <Sonner position="top-right" />
@@ -32,7 +30,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
-  </QueryClientProvider>
+  </Provider>
 );
 
 export default App;

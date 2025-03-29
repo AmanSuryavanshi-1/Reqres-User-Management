@@ -1,67 +1,32 @@
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { userAPI } from '../../utils/api';
 import UserCard from './UserCard';
 import SearchBar from '../ui/SearchBar';
 import { Button } from '../ui/button';
-import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-
-interface User {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  avatar: string;
-}
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchUsers, deleteUser, setSearchQuery, setCurrentPage } from '../../store/slices/usersSlice';
+import type { RootState } from '../../store';
 
 interface UserListProps {}
 
 const UserList: React.FC<UserListProps> = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const dispatch = useAppDispatch();
+  const { users, loading, currentPage, totalPages, searchQuery } = useAppSelector((state: RootState) => state.users);
   const location = useLocation();
 
   // Effect to refetch users when returning from edit page
   useEffect(() => {
-    fetchUsers(currentPage);
-  }, [currentPage, location.key]); // Adding location.key will cause a refetch when navigating back
-
-  const fetchUsers = async (page: number) => {
-    try {
-      setLoading(true);
-      const response = await userAPI.getUsers(page);
-      setUsers(response.data.data);
-      setTotalPages(response.data.total_pages);
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-      toast.error('Failed to load users. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    dispatch(fetchUsers(currentPage));
+  }, [currentPage, location.key, dispatch]); // Adding location.key will cause a refetch when navigating back
 
   const handleDeleteUser = async (id: number) => {
-    try {
-      await userAPI.deleteUser(id);
-      setUsers(users.filter(user => user.id !== id));
-      toast.success('User deleted successfully');
-    } catch (error) {
-      console.error('Failed to delete user:', error);
-      // Since the reqres API always returns a 204 for delete operations regardless of the ID, 
-      // we'll simulate a successful deletion even when the API returns an error
-      setUsers(users.filter(user => user.id !== id));
-      toast.success('User deleted successfully');
-    }
+    dispatch(deleteUser(id));
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
+    dispatch(setSearchQuery(query));
   };
 
   // Filter users based on search query
@@ -140,7 +105,7 @@ const UserList: React.FC<UserListProps> = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => dispatch(setCurrentPage(Math.max(currentPage - 1, 1)))}
                 disabled={currentPage === 1 || loading}
                 className="flex items-center gap-1"
               >
@@ -155,7 +120,7 @@ const UserList: React.FC<UserListProps> = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => dispatch(setCurrentPage(Math.min(currentPage + 1, totalPages)))}
                 disabled={currentPage === totalPages || loading}
                 className="flex items-center gap-1"
               >
